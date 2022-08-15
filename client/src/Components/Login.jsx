@@ -1,5 +1,8 @@
 import { Box, Typography, TextField, Button } from "@mui/material";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import socket from "../socket";
+import { JOIN_ROOM_REQUEST, APPROVED_JOIN_ROOM_REQUEST } from "../socket";
 const LoginStyle = {
     display: "flex",
     flexDirection: "column",
@@ -17,6 +20,15 @@ const Login = () => {
     let [roomName, setRoomName] = useState("");
     let [roomNameError, setRoomNameError] = useState({});
     let [usernameError, setUsernameError] = useState({});
+    let navigate = useNavigate();
+    useEffect(() => {
+        socket.on(APPROVED_JOIN_ROOM_REQUEST, ({ username, roomName }) => {
+            navigate(`/${roomName}?username=${username}`);
+        })
+        return () => {
+            socket.off(APPROVED_JOIN_ROOM_REQUEST)
+        }
+    }, [navigate])
 
     const joinRoom = (username, roomName) => {
         console.log(`username : ${username} room name : ${roomName}`)
@@ -31,7 +43,7 @@ const Login = () => {
             setUsernameError({});
             setRoomNameError({});
             //communicate to server and navigate to appropriate room
-            console.log("can communicate to server");
+            socket.emit(JOIN_ROOM_REQUEST, { username, roomName });
         }
     }
 
