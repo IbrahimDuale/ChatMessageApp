@@ -1,8 +1,7 @@
 import { Box, Typography, TextField, Button } from "@mui/material";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import socket from "../socket";
-import { JOIN_ROOM_REQUEST, APPROVED_JOIN_ROOM_REQUEST } from "../socket";
+
 const LoginStyle = {
     display: "flex",
     flexDirection: "column",
@@ -16,22 +15,26 @@ const LoginStyle = {
 }
 
 const Login = () => {
+    //holds the name the user wants to be called
     let [username, setUsername] = useState("");
+    //name of room the user wants to be connected to
     let [roomName, setRoomName] = useState("");
+    //error state for the room name they chose
     let [roomNameError, setRoomNameError] = useState({});
+    //error state for the username they chose
     let [usernameError, setUsernameError] = useState({});
     let navigate = useNavigate();
-    useEffect(() => {
-        socket.on(APPROVED_JOIN_ROOM_REQUEST, ({ username, roomName }) => {
-            navigate(`/${roomName}?username=${username}`);
-        })
-        return () => {
-            socket.off(APPROVED_JOIN_ROOM_REQUEST)
-        }
-    }, [navigate])
 
+    /***
+     * 
+     * Checks if the user chose a username and a room name then sends then 
+     * connects them with the room they chose as their username
+     * 
+     * @param username name the user chose
+     * @param roomName room name user chose
+     * 
+     */
     const joinRoom = (username, roomName) => {
-        console.log(`username : ${username} room name : ${roomName}`)
         if (!username) {
             setUsernameError({ error: true, helperText: "Username cannot be blank." })
         }
@@ -42,8 +45,7 @@ const Login = () => {
         if (roomName && username) {
             setUsernameError({});
             setRoomNameError({});
-            //communicate to server and navigate to appropriate room
-            socket.emit(JOIN_ROOM_REQUEST, { username, roomName });
+            navigate(`/${roomName}?username=${username}`);
         }
     }
 
