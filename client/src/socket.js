@@ -7,6 +7,7 @@ socket.on("connect", () => {
     console.log("connected to server");
 })
 
+//for debugging purposes
 socket.onAny((event, ...args) => {
     console.log(event, args);
 });

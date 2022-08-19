@@ -3,7 +3,18 @@ import { JOIN_ROOM_REQUEST, APPROVED_JOIN_ROOM_REQUEST, LEAVE_ROOM, USER_LEFT_RO
 import { socketContext } from "../SocketContext";
 import { useSearchParams, useParams } from "react-router-dom";
 import { useState } from "react";
-
+import ChatDisplay from "./ChatDisplay";
+import UsersDisplay from "./UsersDisplay";
+import MessageForm from "./MessageForm";
+/**
+ * 
+ * Component that connects to the room the user chose in the login page
+ * and renders the chat message for the room. The room name is a route parameter 
+ * in the page called :roomName and the username chosen by the user is a search parameter 
+ * called "username".
+ * 
+ * 
+ */
 const Rooms = () => {
 
     //socket connection to the chat message server
@@ -13,7 +24,7 @@ const Rooms = () => {
     let username = searchParams.get("username");
     //name of the room the user wants to be connected to
     let { roomName } = useParams();
-    //array of object containing each users information in the room
+    //array of object containing the name and unique ids of every user in the room
     let [users, setUsers] = useState([]);
     //array of messages sent since user entered the room in order
     let [messages, setMessages] = useState([]);
@@ -29,32 +40,47 @@ const Rooms = () => {
          * the server will send the data of all users which will be added
          * to the state.
          * 
-         *@param users contains an array of objects with each users unique socket id and chosen username
+         *@param {object} users contains an array of objects with each users unique socket id and chosen username
+         *                       the unique id of the user is in the id attribute and the username is in the name attribute
+         *
          */
         socket.on(APPROVED_JOIN_ROOM_REQUEST, ({ users }) => {
             //adds users in room to state
-            console.log(users);
+            setUsers((prevUsers) => {
+                let newUsers = [...prevUsers];
+                users.forEach((user) => {
+                    newUsers.push({ id: user.id, name: user.name, fromSelf: false });
+                })
+                return newUsers;
+            })
         })
 
         /***
          * Event emitted by the server when a user left the room. 
          * The user will be removed from the state.
          * 
-         * @param id unique socket id corresponding to the user that left
+         * @param {string} id unique socket id corresponding to the user that left
          */
         socket.on(USER_LEFT_ROOM, ({ id }) => {
             //to be implemented
+            setUsers((prevUsers) => {
+                let newUsers = prevUsers.filter((user) => user.id != id);
+                return newUsers;
+            })
         })
 
         /**
          * Event runs when a new user joins the room, user data will be
          * added to the state
          * 
-         * @param id unique string socket id of user that joined the room
-         * @param name handle name of the user that joined the room
+         * @param {string} id unique string socket id of user that joined the room
+         * @param {string} name handle name of the user that joined the room
          */
         socket.on(NEW_USER, ({ id, name }) => {
-            //to be implemented
+            setUsers((prevUsers) => {
+                let newUsers = [...prevUsers, { id, name, fromSelf: socket.id == id }];
+                return newUsers;
+            })
         })
 
         return () => {
@@ -80,19 +106,52 @@ const Rooms = () => {
     useEffect(() => {
 
         /**
-         * Event occurs when a new message was sent by a user
+         * Event occurs when a new message was recieved by a user
          * message will be added to the state
          * 
-         * @param id  unique string socket id of user that sent the message
-         * @param message actual message being sent
+         * @param {string} id  unique string socket id of user that sent the message
+         * @param {string} name chosen name of the user
+         * @param {string} content actual message being sent
          */
-        socket.on(NEW_MESSAGE, ({ id, message }) => {
-            //to be implemented
+        socket.on(NEW_MESSAGE, ({ id, name, content }) => {
+            //if its users message it was already added, and so the function returns immediately
+            if (id == socket.id)
+                return;
+
+            //adds new message to message array
+            setMessages((oldMessages) => {
+                let newMessages = [...oldMessages, { id, name, content, fromSelf: false, timestamp: new Date() }]
+                return newMessages;
+            })
         })
+
+        return () => {
+            socket.off(NEW_MESSAGE);
+        }
     }, [socket])
 
+    /**
+     * 
+     * submits the users message to the server
+     * 
+     * @param {string} message message the users wants to submit
+     */
+    const submitMessage = (message) => {
+        //adds own message to state
+        setMessages((oldMessages) => {
+            let newMessages = [...oldMessages, { id: socket.id, name: username, fromSelf: true, timestamp: new Date(), content: message }];
+            return newMessages;
+        })
+
+        //notifies server of new message
+        socket.emit(NEW_MESSAGE, { id: socket.id, name: username, content: message, roomName });
+    }
+
     return (
-        <div>This is the rooms page</div>
+        <div>
+            <MessageForm submitMessage={submitMessage} />
+            <ChatDisplay messages={messages} userInfo={users} />
+        </div>
     )
 }
 

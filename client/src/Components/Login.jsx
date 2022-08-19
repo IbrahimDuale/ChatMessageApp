@@ -30,8 +30,8 @@ const Login = () => {
      * Checks if the user chose a username and a room name then sends then 
      * connects them with the room they chose as their username
      * 
-     * @param username name the user chose
-     * @param roomName room name user chose
+     * @param {string} username name the user chose
+     * @param {string} roomName room name user chose
      * 
      */
     const joinRoom = (username, roomName) => {

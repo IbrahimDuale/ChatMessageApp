@@ -1,5 +1,6 @@
 const app = require("express")();
 const server = require("http").createServer(app);
+const e = require("express");
 const { Server } = require("socket.io");
 const io = new Server(server,
     {
@@ -34,8 +35,8 @@ io.on("connection", (socket) => {
      * be notified that a new user has joined along with the unique id
      * of the user and the name they chose
      * 
-     * @param username name the user joining the room wants to be called
-     * @param roomName name of the room the user wants to connect to
+     * @param {string} username name the user joining the room wants to be called
+     * @param {string} roomName name of the room the user wants to connect to
      * 
      */
     socket.on(JOIN_ROOM_REQUEST, ({ username, roomName }) => {
@@ -49,8 +50,8 @@ io.on("connection", (socket) => {
             }
         }
         socket.join(roomName);
-        socket.emit(APPROVED_JOIN_ROOM_REQUEST, { users });
         io.to(roomName).emit(NEW_USER, { id: socket.id, name: socket.username });
+        socket.emit(APPROVED_JOIN_ROOM_REQUEST, { users });
     })
 
 
@@ -59,8 +60,8 @@ io.on("connection", (socket) => {
      * other user in the room will be notified of the user
      * that left the room by id
      * 
-     * @param id unique socket id of user that left the room
-     * @param roomName name of room the user is leaving
+     * @param {string} id unique socket id of user that left the room
+     * @param {string} roomName name of room the user is leaving
      */
     socket.on(LEAVE_ROOM, ({ id, roomName }) => {
         socket.leave(roomName);
@@ -72,11 +73,13 @@ io.on("connection", (socket) => {
      * other users in the room, message contains the users unique
      * socket id and the message they wish to send
      * 
-     * @param id unique socket id of user sending the message
-     * @param message message content the user wants to send
+     * @param {string} id unique socket id of user sending the message
+     * @param {string} content message content the user wants to send
+     * @param {string} name name the user wants to be called in the room
+     * @param {string} roomName name of the room the user is in
      */
-    socket.on(NEW_MESSAGE, ({ id, message }) => {
-        //to be implemented
+    socket.on(NEW_MESSAGE, ({ id, content, name, roomName }) => {
+        io.to(roomName).emit(NEW_MESSAGE, { id, content, name });
     })
 
 })
