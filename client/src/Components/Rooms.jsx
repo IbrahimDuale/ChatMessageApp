@@ -151,6 +151,7 @@ const Rooms = () => {
         <div>
             <MessageForm submitMessage={submitMessage} />
             <ChatDisplay messages={messages} userInfo={users} />
+            <UsersDisplay usersInfo={users} />
         </div>
     )
 }

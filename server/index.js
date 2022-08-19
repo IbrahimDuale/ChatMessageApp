@@ -65,7 +65,6 @@ io.on("connection", (socket) => {
      */
     socket.on(LEAVE_ROOM, ({ id, roomName }) => {
         socket.leave(roomName);
-        io.to(roomName).emit(USER_LEFT_ROOM, { id });
     })
 
     /**
@@ -83,6 +82,17 @@ io.on("connection", (socket) => {
     })
 
 })
+
+/**
+ *
+ * event occurs when a socket leaves a room, all
+ * users currently in the room are notified of the 
+ * user representing this socket id as leaving the room
+ * 
+ */
+io.of("/").adapter.on("leave-room", (room, id) => {
+    io.to(room).emit(USER_LEFT_ROOM, { id });
+});
 
 const PORT = 5000;
 
