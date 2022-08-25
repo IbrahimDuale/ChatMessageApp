@@ -15,8 +15,10 @@ const App = () => {
                     </Typography>
                 </Toolbar>
             </AppBar>
-            <Outlet />
-        </Box>
+            <Box sx={{ display: "flex", justifyContent: "center", }}>
+                <Outlet />
+            </Box>
+        </Box >
     );
 }
 

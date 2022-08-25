@@ -10,10 +10,17 @@ const LoginStyle = {
     paddingTop: "15px",
     maxWidth: "500px",
     margin: "auto",
-    marginTop: "10%",
-    rowGap: "25px",
+    marginTop: "5px",
+    rowGap: "10px",
 }
-
+/***
+ * 
+ * Login Page user will enter their name and the room
+ * they wish to join here. After validation users
+ * are directed to the room page which has a url of
+ * {domain name}/{room_name_chosen}/?username={name_chosen}
+ * 
+ */
 const Login = () => {
     //holds the name the user wants to be called
     let [username, setUsername] = useState("");
@@ -27,8 +34,8 @@ const Login = () => {
 
     /***
      * 
-     * Checks if the user chose a username and a room name then sends then 
-     * connects them with the room they chose as their username
+     * Checks if the user chose a username and a room name, then sends them 
+     * to the room page with the data they chose
      * 
      * @param {string} username name the user chose
      * @param {string} roomName room name user chose

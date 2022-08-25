@@ -22,6 +22,11 @@ const MessageForm = ({ submitMessage }) => {
         textFieldRef.current.focus();
     }, [message])
 
+    let validateMessageKeyPress = (message, e) => {
+        if (e.key === "Enter")
+            validateMessage(message);
+    }
+
     /**
      * 
      * checks that the user is trying to submit a non empty message
@@ -48,7 +53,7 @@ const MessageForm = ({ submitMessage }) => {
     return (
         <div>
             <Box sx={MessageFormStyle}>
-                <TextField inputRef={textFieldRef} {...error} id="submitMessage" value={message} label="Message" variant="outlined" onChange={(e) => setMessage(e.target.value)} />
+                <TextField sx={{ flexGrow: 1 }} inputRef={textFieldRef} {...error} onKeyPress={(e) => validateMessageKeyPress(message, e)} id="submitMessage" value={message} label="Message" variant="outlined" onChange={(e) => setMessage(e.target.value)} />
                 <Button variant="contained" onClick={() => validateMessage(message)}>Submit</Button>
             </Box>
         </div>

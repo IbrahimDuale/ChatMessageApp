@@ -1,9 +1,14 @@
+import { List, ListItem, Typography } from "@mui/material";
 
 const UsersDisplay = ({ usersInfo }) => {
     let users = usersInfo.map((user) => {
-        return <li key={user.id}>{user.name}</li>;
+        return <ListItem key={user.id}><Typography variant="body1" component="p" >{user.name}</Typography></ListItem>;
     })
-    return <ul>{users}</ul>
+    return (
+        <List>
+            {users}
+        </List>
+    )
 }
 
 export default UsersDisplay;
