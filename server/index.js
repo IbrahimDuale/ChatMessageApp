@@ -95,6 +95,6 @@ io.of("/").adapter.on("leave-room", (room, id) => {
     io.to(room).emit(USER_LEFT_ROOM, { id, name: socket.username });
 });
 
-const PORT = 5000;
+const PORT = process.env.PORT || 5000;
 
 server.listen(PORT, () => console.log(`listening on ${PORT}`));
