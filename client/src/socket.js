@@ -1,18 +1,17 @@
 import { io } from "socket.io-client";
 
-const url = "http://localhost:5000/"
+//const url = "http://localhost:5000/"
+const url = "https://ibrahim-chat-app.herokuapp.com/"
 const socket = io(url);
 
 socket.on("connect", () => {
     console.log("connected to server");
 })
 
-//for debugging purposes
-socket.onAny((event, ...args) => {
-    console.log(event, args);
-});
-
-socket.on("")
+// //for debugging purposes
+// socket.onAny((event, ...args) => {
+//     console.log(event, args);
+// });
 
 //emitted when user attemps to join a room
 const JOIN_ROOM_REQUEST = "JOIN_ROOM_REQUEST";
